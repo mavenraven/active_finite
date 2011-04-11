@@ -6,14 +6,16 @@ require 'json'
 
 def active_finite sym
   anon = Class.new ActiveRecord::Base
-  Object.const_set(sym.to_s.singularize.capitalize, anon)
+  klass = Object.const_set(sym.to_s.singularize.capitalize, anon)
+  puts klass
+  klass
 end
 
 def create_finite args
-  modify_finite args do |vs, klass|
+  modify_finite args do |vs, klass, column_name|
     vs.each do |v|
       obj = klass.new
-      obj.value = v
+      obj.send column_name.to_s + '=', v
       obj.save
     end
   end
