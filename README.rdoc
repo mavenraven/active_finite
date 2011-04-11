@@ -1,9 +1,75 @@
 = active_finite
 
-Description goes here.
+== What is active_finite?
 
+The goal of active_finite is to provide a simple way to define
+database enumerations with ActiveRecord. There are many[https://github.com/ikspres/enum_fu] existing[https://github.com/adzap/active_enum] projects[https://github.com/jeffp/enumerated_attribute] that bring some enum support to ActiveRecord. However, these projects tend to define the enums in code, instead of in the migration itself. 
+
+== Hello, active_finite!
+
+Let's start by defining a simple migration:
+
+require 'active_finite'
+require 'active_record'
+require 'active_support/core_ext'
+
+class Hellos < ActiveRecord::Migration
+  self.up
+    create_table :hellos do |t|
+      t.string default_column_name, :null => false
+    end
+    create_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
+  end
+
+  self.down
+    drop_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
+    drop_table :hellos
+  end
+end
+
+Note that if it doesn't matter what the column's name is, the method 
+default_column_name can be used.
+
+Now that we some hellos in our Hello model, we can access them using:
+hellos = active_finite :hellos
+
+The variable hellos now holds a class derived from ActiveRecord named 
+Hello, so all of the normal ActiveRecord methods can be used.
+By using the method active_finite, there is no need to define the model classes
+explicitly.
+
+== Other options
+If the column name must be different than the default (i.e. when working with
+an existing database), the column_name option can be used. Also, a json
+file can be used instead of explicitly listing the possible values in 
+the migration. For example:
+
+require 'active_finite'
+require 'active_record'
+require 'active_support/core_ext'
+class HellosWithCustomColumn < ActiveRecord::Migration
+  self.up
+    create_table :hellos do |t|
+      t.string :custom, :null => false
+    end
+    create_finite in_table: :hellos,
+                  values: ['oy', 'que tal', 'hi']
+                  column_name: :custom
+                  from_file: 'hellos.json'
+  end
+
+  self.down
+    drop_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
+    drop_table :hellos
+  end
+end
+
+If both values and from_file are defined, active_finite will pull entries from both.
+
+== Other ideas
+Combine active_finite with foreigner[https://github.com/matthuhiggins/foreigner] to put foreign key constraints on users of defined enums.
 == Contributing to active_finite
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
 * Fork the project
