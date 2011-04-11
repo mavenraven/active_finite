@@ -9,23 +9,23 @@ database enumerations with ActiveRecord. There are many[https://github.com/ikspr
 
 Let's start by defining a simple migration:
 
-require 'active_finite'
-require 'active_record'
-require 'active_support/core_ext'
+  require 'active_finite'
+  require 'active_record'
+  require 'active_support/core_ext'
 
-class Hellos < ActiveRecord::Migration
-  self.up
-    create_table :hellos do |t|
-      t.string default_column_name, :null => false
+  class Hellos < ActiveRecord::Migration
+    self.up
+      create_table :hellos do |t|
+        t.string default_column_name, :null => false
+      end
+      create_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
     end
-    create_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
-  end
 
-  self.down
-    drop_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
-    drop_table :hellos
+    self.down
+      drop_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
+      drop_table :hellos
+    end
   end
-end
 
 Note that if it doesn't matter what the column's name is, the method 
 default_column_name can be used.
@@ -44,25 +44,25 @@ an existing database), the column_name option can be used. Also, a json
 file can be used instead of explicitly listing the possible values in 
 the migration. For example:
 
-require 'active_finite'
-require 'active_record'
-require 'active_support/core_ext'
-class HellosWithCustomColumn < ActiveRecord::Migration
-  self.up
-    create_table :hellos do |t|
-      t.string :custom, :null => false
+  require 'active_finite'
+  require 'active_record'
+  require 'active_support/core_ext'
+  class HellosWithCustomColumn < ActiveRecord::Migration
+    self.up
+      create_table :hellos do |t|
+        t.string :custom, :null => false
+      end
+      create_finite in_table: :hellos,
+                    values: ['oy', 'que tal', 'hi']
+                    column_name: :custom
+                    from_file: 'hellos.json'
     end
-    create_finite in_table: :hellos,
-                  values: ['oy', 'que tal', 'hi']
-                  column_name: :custom
-                  from_file: 'hellos.json'
-  end
 
-  self.down
-    drop_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
-    drop_table :hellos
+    self.down
+      drop_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
+      drop_table :hellos
+    end
   end
-end
 
 If both values and from_file are defined, active_finite will pull entries from both.
 
