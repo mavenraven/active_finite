@@ -31,7 +31,7 @@ Note that if it doesn't matter what the column's name is, the method
 default_column_name can be used.
 
 Now that we some hellos in our Hello model, we can access them using:
-hellos = active_finite :hellos
+  hellos = active_finite :hellos
 
 The variable hellos now holds a class derived from ActiveRecord named 
 Hello, so all of the normal ActiveRecord methods can be used.

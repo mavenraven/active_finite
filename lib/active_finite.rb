@@ -6,8 +6,7 @@ require 'json'
 
 def active_finite sym
   anon = Class.new ActiveRecord::Base
-  klass = Object.const_set(sym.to_s.singularize.capitalize, anon)
-  klass
+  Object.const_set(sym.to_s.singularize.capitalize, anon)
 end
 
 def create_finite args
@@ -53,7 +52,9 @@ def modify_finite args
   end
 
   klass = active_finite table_name
-  yield to_be_modified, klass, column_name
+  ActiveRecord::Base.transaction do
+    yield to_be_modified, klass, column_name
+  end
 end
 
 def default_column_name

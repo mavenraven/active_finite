@@ -28,7 +28,7 @@ ActiveRecord::Base.establish_connection(
       create_finite in_table: :colors, values: finites
 
       finites.each do |f|
-        Color. where(default_column_name => f).should_not nil
+        Color.where(default_column_name => f).should_not nil
       end
     end
 
@@ -61,6 +61,21 @@ ActiveRecord::Base.establish_connection(
 
       ['scaramanga', 'no', 'janus'].each do |v|
         Villan.where(default_column_name => v).should_not nil
+      end
+    end
+
+    it 'will fail atomically' do
+      ActiveRecord::Schema.define do
+        create_table :wu_members do |t|
+          t.string default_column_name, :null => false
+        end
+      end
+      begin
+        create_finite in_table: :wu_members, values: ['rza', 'gza', nil]
+      rescue
+        ['rza', 'gza'].each do |w|
+          active_finite(:wu_members).where(default_column_name => w).should nil
+        end
       end
     end
   end
