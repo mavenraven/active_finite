@@ -7,7 +7,6 @@ require 'json'
 def active_finite sym
   anon = Class.new ActiveRecord::Base
   klass = Object.const_set(sym.to_s.singularize.capitalize, anon)
-  puts klass
   klass
 end
 
