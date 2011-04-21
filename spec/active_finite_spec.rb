@@ -1,97 +1,138 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-ActiveRecord::Base.establish_connection(
-  :adapter  => 'sqlite3',
-  :database => ':memory:',
-  :pool     => 5,
-  :timeout  => 5000)
+def reconnect
+  ActiveRecord::Base.establish_connection(
+    :adapter  => 'sqlite3',
+    :database => ':memory:',
+    :pool     => 5,
+    :timeout  => 5000)
+end
 
-  describe 'active_finite' do
-    it 'returns a class that is a child of active record base' do
-      active_finite(:test).superclass.should eql ActiveRecord::Base
-    end
-    it 'properly singularizes its classes' do
-      active_finite(:users).should eql User
-      active_finite(:foxes).should eql Fox
-      active_finite(:sheep).should eql Sheep
+describe 'get_finite_table' do
+  before :each do
+    reconnect
+  end
+  it 'returns a class that is a child of active record base' do
+    get_finite_table(:test).superclass.should eql ActiveRecord::Base
+  end
+  it 'brings a class into scope' do
+    get_finite_table :spaces
+    Object.const_defined?(:Space).should be true
+  end
+  it 'will not redefine a previously defined constant' do
+    Define = true
+    get_finite_table :defines
+    Define.should == true
+  end
+  it 'will redefine a previously defined constant with the force option' do
+    Anyway = true
+    get_finite_table :anyways, :force
+    Anyway.should_not == true
+  end
+end
+
+describe 'all_finite_tables' do
+  before :each do
+    reconnect
+  end
+  it 'returns all active record classes created by active_finite' do
+    add_finites in_table: :things, values: ['1']
+    add_finites in_table: :stuffs, values: ['s']
+    all_finite_tables.should == [Thing, Stuff]
+  end
+  it 'will no longer return a removed finite table' do
+    add_finites in_table: :things, values: ['1']
+    delete_finites in_table: :things, values: ['1']
+    all_finite_tables.should == []
+  end
+end
+
+describe 'as_class_name' do
+  before :each do
+    reconnect
+  end
+  it 'capitalizes its input' do
+    as_class_name(:as).should eql :A
+  end
+  it 'properly singularizes its input' do
+    as_class_name(:users).should eql :User
+    as_class_name(:foxes).should eql :Fox
+    as_class_name(:sheep).should eql :Sheep
+  end
+end
+
+describe 'add_finites' do
+  before :each do
+    reconnect
+  end
+  it 'adds finites as rows to the database' do
+    finites = ['red', 'blue', 'green']
+    add_finites in_table: :colors, values: finites
+
+    finites.each do |f|
+      Color.where(default_column_name => f).should_not nil
     end
   end
 
-  describe 'create_finite' do
-    it 'adds finites as rows to the database' do
-      ActiveRecord::Schema.define do
-        create_table :colors do |t|
-          t.string default_column_name, :null => false
-        end
-      end
-      finites = ['red', 'blue', 'green']
-      create_finite in_table: :colors, values: finites
+  it 'creates the coresponding table if it doesn\`t exist' do
+    add_finites in_table: :tests, values: [1]
+    Object.const_defined?(:Test).should be true
+  end
 
-      finites.each do |f|
-        Color.where(default_column_name => f).should_not nil
-      end
-    end
+  it 'can use a different column name' do
+    finites = ['mickey', 'donald', 'scrooge']
+    add_finites in_table: :characters, 
+      values: finites, 
+      column_name: :column_name
 
-    it 'can change the column name' do
-      ActiveRecord::Schema.define do
-        create_table :characters do |t|
-          t.string :column_name, :null => false
-        end
-      end
-      finites = ['mickey', 'donald', 'scrooge']
-
-      create_finite in_table: :characters, 
-        values: finites, 
-        column_name: :column_name
-
-      finites.each do |f|
-        Color.where(:column_name => f).should_not nil
-      end
-    end
-
-    it 'can load from a json file' do
-      ActiveRecord::Schema.define do
-        create_table :villans do |t|
-          t.string default_column_name, :null => false
-        end
-      end
-      file_path = File.expand_path(File.dirname(__FILE__) + '/villans.json')
-      create_finite in_table: :villans,
-        from_file: file_path
-
-      ['scaramanga', 'no', 'janus'].each do |v|
-        Villan.where(default_column_name => v).should_not nil
-      end
-    end
-
-    it 'will fail atomically' do
-      ActiveRecord::Schema.define do
-        create_table :wu_members do |t|
-          t.string default_column_name, :null => false
-        end
-      end
-      begin
-        create_finite in_table: :wu_members, values: ['rza', 'gza', nil]
-      rescue
-        ['rza', 'gza'].each do |w|
-          active_finite(:wu_members).where(default_column_name => w).should nil
-        end
-      end
+    finites.each do |f|
+      Color.where(:column_name => f).should_not nil
     end
   end
 
-  describe 'drop_finite' do
-    it 'can delete previously added finites' do
-      ActiveRecord::Schema.define do
-        create_table :adjs do |t|
-          t.string default_column_name, :null => false
-        end
+  it 'can load from a json file' do
+    file_path = File.expand_path(File.dirname(__FILE__) + '/villans.json')
+    add_finites in_table: :villans,
+      from_file: file_path
 
-        create_finite in_table: :adj, values: ['delete', 'drop']
-        drop_finite in_table: :adj, values: ['delete']
-        Adj.where(default_column_name => 'delete').should nil
-        Adj.where(default_column_name => 'drop').should_not nil
+    ['scaramanga', 'no', 'janus'].each do |v|
+      Villan.where(default_column_name => v).should_not nil
+    end
+  end
+
+  it 'will fail atomically' do
+    begin
+      add_finites in_table: :wu_members, values: ['rza', 'gza', nil]
+    rescue
+      ['rza', 'gza'].each do |w|
+        get_finite_table(:wu_members).where(default_column_name => w).should nil
       end
     end
   end
+end
+
+describe 'delete_finies' do
+  before :each do
+    reconnect
+  end
+
+  it 'can delete previously added finites' do
+    add_finites in_table: :adjs, values: ['delete', 'drop']
+    delete_finites in_table: :adjs, values: ['delete']
+    Adj.where(default_column_name => 'delete').should nil
+    Adj.where(default_column_name => 'drop').should_not nil
+  end
+
+  it 'will remove the table if there are no finites left' do
+    add_finites in_table: :deletes, values: ['delete']
+    delete_finites in_table: :deletes, values: ['delete']
+    Object.const_defined?(:Delete).should_not be true
+  end
+
+  it 'can delete all values with the all option' do
+    add_finites in_table: :adjs, values: ['delete', 'drop']
+    delete_finites in_table: :adjs, values: :all
+    Object.const_defined?(:Adj).should_not be true
+  end
+end
 

@@ -15,32 +15,30 @@ Let's start by defining a simple migration:
 
   class Hellos < ActiveRecord::Migration
     self.up
-      create_table :hellos do |t|
-        t.string default_column_name, :null => false
-      end
-      create_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
+      add_finites in_table: :hellos, values: ['oy', 'que tal', 'hi']
     end
 
     self.down
-      drop_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
-      drop_table :hellos
+      delete_finites in_table: :hellos, values: ['oy', 'que tal', 'hi']
     end
   end
 
-Note that if it doesn't matter what the column's name is, the method 
-default_column_name can be used.
-
 Now that we some hellos in our Hello model, we can access them using:
-  hellos = active_finite :hellos
+  hellos = get_finite_table :hellos
 
 The variable hellos now holds a class derived from ActiveRecord named 
 Hello, so all of the normal ActiveRecord methods can be used.
-By using the method active_finite, there is no need to define the model classes
-explicitly.
+
+We can also a collection of all of the active record classes defined by
+active_finite by using:
+  all_finite_tables
+
+Using get_finite_table and all_finite_tables implicitly bring the associated
+classes into scope, so a single call to all_finite_tables is sufficent to 
+define all of the models.
 
 == Other options
-If the column name must be different than the default (i.e. when working with
-an existing database), the column_name option can be used. Also, a json
+If the column name must be different than the default, the column_name option can be used. Also, a json
 file can be used instead of explicitly listing the possible values in 
 the migration. For example:
 
@@ -49,22 +47,21 @@ the migration. For example:
   require 'active_support/core_ext'
   class HellosWithCustomColumn < ActiveRecord::Migration
     self.up
-      create_table :hellos do |t|
-        t.string :custom, :null => false
-      end
-      create_finite in_table: :hellos,
-                    values: ['oy', 'que tal', 'hi']
-                    column_name: :custom
-                    from_file: 'hellos.json'
+      add_finites in_table: :hellos,
+                  values: ['oy', 'que tal', 'hi']
+                  column_name: :custom
+                  from_file: 'hellos.json'
     end
 
     self.down
-      drop_finite in_table: :hellos, values: ['oy', 'que tal', 'hi']
-      drop_table :hellos
+      delete_finites in_table: :hellos, values: all
     end
   end
 
 If both values and from_file are defined, active_finite will pull entries from both.
+Another option to be aware of is that values do not have to be explicitly listed
+upon deletion, using the all option is sufficent.
+
 
 == Other ideas
 Combine active_finite with foreigner[https://github.com/matthuhiggins/foreigner] to put foreign key constraints on users of defined enums.
