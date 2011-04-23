@@ -8,25 +8,25 @@ def reconnect
     :timeout  => 5000)
 end
 
-describe 'get_finite_table' do
+describe 'get_table' do
   before :each do
     reconnect
   end
   it 'returns a class that is a child of active record base' do
-    get_finite_table(:test).superclass.should eql ActiveRecord::Base
+    get_table(:test).superclass.should eql ActiveRecord::Base
   end
   it 'brings a class into scope' do
-    get_finite_table :spaces
+    get_table :spaces
     Object.const_defined?(:Space).should be true
   end
   it 'will not redefine a previously defined constant' do
     Define = true
-    get_finite_table :defines
+    get_table :defines
     Define.should == true
   end
   it 'will redefine a previously defined constant with the force option' do
     Anyway = true
-    get_finite_table :anyways, :force
+    get_table :anyways, :force
     Anyway.should_not == true
   end
 end
@@ -45,12 +45,41 @@ describe 'all_finite_tables' do
     delete_finites in_table: :things, values: ['1']
     all_finite_tables.should == []
   end
+  it 'returns a table that was used with add_finites' do
+    ActiveRecord::Schema.define do
+      create_table :things do |t|
+        t.string :column, :null => false
+      end
+    end
+    add_finites in_table: :things,
+                column_name: :column,
+                values: ['1']
+
+    all_finite_tables.should == [Thing]
+  end
+  it 'returns a table that was used with delete_finites' do
+    ActiveRecord::Schema.define do
+      create_table :things do |t|
+        t.string :column, :null => false
+      end
+    end
+    t = Thing.new 
+    t.column = "hi"
+    t.save
+
+    u = Thing.new
+    u.column = "bye"
+    u.save
+    
+    delete_finites in_table: :things,
+                   column_name: :column,
+                   values: ["bye"]
+
+    all_finite_tables.should == [Thing]
+  end
 end
 
 describe 'as_class_name' do
-  before :each do
-    reconnect
-  end
   it 'capitalizes its input' do
     as_class_name(:as).should eql :A
   end
@@ -105,13 +134,18 @@ describe 'add_finites' do
       add_finites in_table: :wu_members, values: ['rza', 'gza', nil]
     rescue
       ['rza', 'gza'].each do |w|
-        get_finite_table(:wu_members).where(default_column_name => w).should nil
+        get_table(:wu_members).where(default_column_name => w).should nil
       end
     end
   end
+  it 'will not add a duplicate value' do
+    lambda do
+      add_finites(in_table: :numbers, values: ['1','1'])
+    end.should raise_error ActiveRecord::RecordNotUnique
+  end
 end
 
-describe 'delete_finies' do
+describe 'delete_finites' do
   before :each do
     reconnect
   end

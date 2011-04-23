@@ -3,58 +3,12 @@ require 'find'
 require 'active_support/inflector'
 require 'active_record'
 require 'json'
-
-def get_finite_table sym, *args
-  class_name = as_class_name sym
-  class_not_defined = not(Object.const_defined? class_name)
-  should_force = args.any? {|x| x == :force}
-  if class_not_defined or should_force
-    anon = Class.new ActiveRecord::Base
-    Object.const_set class_name, anon
-  else
-    Object.const_get class_name
-  end
-end
-
-def as_class_name table_name
-  table_name.to_s.singularize.capitalize.to_sym
-end
+require_relative 'master_table.rb'
+require_relative 'get_table.rb'
 
 def all_finite_tables
-  master = get_finite_table(master_table_name)
-  if master.table_exists?
-    master
-    .where("#{default_column_name} != ?", master_table_name)
-    .collect {|x| x.send default_column_name.to_s}
-    .collect {|x| get_finite_table x}
-  else
-    []
-  end
+  MasterTable.all
 end
-
-def master_table_name
-  :active_finites
-end
-
-def add_to_master table_name
-  add_finites in_table: master_table_name, values: [table_name]
-end
-
-def delete_from_master table_name
-  delete_finites in_table: master_table_name, values: [table_name]
-end
-
-def is_in_master_table? table_name
-  if table_name.eql? master_table_name
-    true
-  else
-    get_finite_table(master_table_name)
-    .where("#{default_column_name} != ?", master_table_name)
-    .where("#{default_column_name} == ?", table_name)
-    .any?
-  end
-end
-
 
 def add_finites args
   modify_finite args do |vs, klass, column_name|
@@ -63,9 +17,10 @@ def add_finites args
         create_table klass.table_name do |t|
           t.string column_name, :null => false
         end
+        add_index klass.table_name, column_name, :unique => true
       end
-      add_to_master klass.table_name
     end
+    MasterTable.add klass.table_name
     vs.each do |v|
       obj = klass.new
       obj.send column_name.to_s + '=', v
@@ -74,12 +29,13 @@ def add_finites args
   end
 end
 
-def delete_finites args,
+def delete_finites args
   delete_all = args[:values] == :all
   if delete_all
     args[:values] = []
   end
   modify_finite args do |vs, klass, column_name|
+    MasterTable.add klass.table_name
     if delete_all
       klass.all.each do |o|
         klass.destroy o
@@ -96,7 +52,7 @@ def delete_finites args,
       ActiveRecord::Schema.define do
         drop_table klass.table_name
       end
-      delete_from_master klass.table_name
+      MasterTable.delete klass.table_name
       Object.send 'remove_const', klass.to_s.to_sym
     end
   end
@@ -105,7 +61,7 @@ end
 def modify_finite args
   table_name = args[:in_table]
   if table_name.nil?
-    raise 'A table name must be specified for :in_table .'
+    raise 'A table name must be specified for :in_table.'
   end
   file_name   = args[:from_file] 
   values      = args[:values]
@@ -123,7 +79,7 @@ def modify_finite args
     to_be_modified = to_be_modified.concat JSON.load open file_name
   end
 
-  klass = get_finite_table table_name
+  klass = get_table table_name
   ActiveRecord::Base.transaction do
     yield to_be_modified, klass, column_name
   end
@@ -131,4 +87,8 @@ end
 
 def default_column_name
   :value
+end
+
+def as_class_name table_name
+  table_name.to_s.singularize.capitalize.to_sym
 end

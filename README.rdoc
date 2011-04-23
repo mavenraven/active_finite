@@ -24,7 +24,7 @@ Let's start by defining a simple migration:
   end
 
 Now that we some hellos in our Hello model, we can access them using:
-  hellos = get_finite_table :hellos
+  hellos = get_table :hellos
 
 The variable hellos now holds a class derived from ActiveRecord named 
 Hello, so all of the normal ActiveRecord methods can be used.
@@ -33,7 +33,7 @@ We can also a collection of all of the active record classes defined by
 active_finite by using:
   all_finite_tables
 
-Using get_finite_table and all_finite_tables implicitly bring the associated
+Using get_table and all_finite_tables implicitly bring the associated
 classes into scope, so a single call to all_finite_tables is sufficent to 
 define all of the models.
 
