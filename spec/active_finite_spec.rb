@@ -1,3 +1,4 @@
+require 'ruby-debug'
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 def reconnect
@@ -75,7 +76,7 @@ describe 'all_finite_tables' do
                    column_name: :column,
                    values: ["bye"]
 
-    all_finite_tables.should == [Thing]
+    all_finite_tables.should eql [Thing]
   end
 end
 
@@ -94,12 +95,18 @@ describe 'add_finites' do
   before :each do
     reconnect
   end
+  it 'by default, creates a column with the same name as the table' do
+    finites = ['red']
+    add_finites in_table: :colors, values: finites
+    Color.where(:color => :red).limit(1).first.color.should eql "red"
+  end
+
   it 'adds finites as rows to the database' do
     finites = ['red', 'blue', 'green']
     add_finites in_table: :colors, values: finites
 
     finites.each do |f|
-      Color.where(default_column_name => f).should_not nil
+      Color.where(:color => f).limit(1).first.color.should eql f.to_s
     end
   end
 
@@ -115,7 +122,7 @@ describe 'add_finites' do
       column_name: :column_name
 
     finites.each do |f|
-      Color.where(:column_name => f).should_not nil
+      Character.where(:column_name => f).limit(1).first.column_name.should eql f.to_s
     end
   end
 
@@ -125,16 +132,17 @@ describe 'add_finites' do
       from_file: file_path
 
     ['scaramanga', 'no', 'janus'].each do |v|
-      Villan.where(default_column_name => v).should_not nil
+      Villan.where(:villan => v).limit(1).first.villan.should eql v
     end
   end
 
   it 'will fail atomically' do
     begin
-      add_finites in_table: :wu_members, values: ['rza', 'gza', nil]
+      add_finites in_table: :wu_members, values: ['rza']
+      add_finites in_table: :wu_members, values: ['gza', nil]
     rescue
-      ['rza', 'gza'].each do |w|
-        get_table(:wu_members).where(default_column_name => w).should nil
+      ['gza'].each do |w|
+        get_table(:wu_members).where(:wu_member => w).limit(1).first.should nil
       end
     end
   end
@@ -151,15 +159,28 @@ describe 'delete_finites' do
   end
 
   it 'can delete previously added finites' do
-    add_finites in_table: :adjs, values: ['delete', 'drop']
-    delete_finites in_table: :adjs, values: ['delete']
-    Adj.where(default_column_name => 'delete').should nil
-    Adj.where(default_column_name => 'drop').should_not nil
+    add_finites in_table: :adjs, values: ['drop', 'delete']
+    Adj.where(:adj => 'drop').limit(1).first.adj.should eql 'drop'
+    delete_finites in_table: :adjs, values: ['drop']
+    Adj.where(:adj => 'drop').limit(1).size.should eql 0
+  end
+
+  it 'can use a different column name' do
+    finites = ['mickey', 'donald', 'scrooge']
+    add_finites in_table: :characters, 
+      values: finites, 
+      column_name: :column_name
+
+    delete_finites in_table: :characters, 
+      values: ['mickey'], 
+      column_name: :column_name
+
+    Character.where(:column_name => 'mickey').limit(1).size.should eql 0
   end
 
   it 'will remove the table if there are no finites left' do
-    add_finites in_table: :deletes, values: ['delete']
-    delete_finites in_table: :deletes, values: ['delete']
+    add_finites in_table: :deletes, column_name: :value, values: ['delete']
+    delete_finites in_table: :deletes, column_name: :value, values: ['delete']
     Object.const_defined?(:Delete).should_not be true
   end
 

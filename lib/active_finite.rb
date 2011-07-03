@@ -65,7 +65,7 @@ def modify_finite args
   end
   file_name   = args[:from_file] 
   values      = args[:values]
-  column_name = args[:column_name] || :value
+  column_name = args[:column_name] || default_column_name(table_name)
   if values.nil? and file_name.nil?
     raise 'Either :from_file or :values must be specified.'
   end
@@ -85,8 +85,8 @@ def modify_finite args
   end
 end
 
-def default_column_name
-  :value
+def default_column_name table_name
+  table_name.to_s.singularize.to_sym
 end
 
 def as_class_name table_name

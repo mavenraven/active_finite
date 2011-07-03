@@ -5,7 +5,7 @@ module MasterTable
     :active_finites
   end
   def self.column_name
-    :value
+    default_column_name self.table_name
   end
   def self.table
     get_table self.table_name
@@ -14,7 +14,7 @@ module MasterTable
     if self.table.table_exists?
       self.table
       .all
-      .collect {|x| x.send default_column_name.to_s}
+      .collect {|x| x.send self.column_name.to_s}
       .collect {|x| get_table x}
     else
       []
