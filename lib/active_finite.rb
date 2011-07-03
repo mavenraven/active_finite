@@ -1,8 +1,4 @@
-require 'pathname'
-require 'find'
-require 'active_support/inflector'
-require 'active_record'
-require 'json'
+require_relative 'external_includes.rb'
 require_relative 'master_table.rb'
 require_relative 'get_table.rb'
 
@@ -89,6 +85,3 @@ def default_column_name table_name
   table_name.to_s.singularize.to_sym
 end
 
-def as_class_name table_name
-  table_name.to_s.singularize.capitalize.to_sym
-end

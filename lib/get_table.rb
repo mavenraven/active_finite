@@ -1,4 +1,5 @@
-require 'active_record'
+require 'external_includes'
+require_relative 'as_class_name.rb'
 
 def get_table sym, *args
   class_name = as_class_name sym

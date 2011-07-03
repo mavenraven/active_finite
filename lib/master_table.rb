@@ -1,4 +1,5 @@
 require_relative 'get_table.rb'
+require_relative 'external_includes.rb'
 
 module MasterTable
   def self.table_name
