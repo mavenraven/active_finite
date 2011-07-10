@@ -82,6 +82,6 @@ def modify_finite args
 end
 
 def default_column_name table_name
-  (table_name.to_s.singularize + '_value').to_sym
+  (table_name.to_s.singularize.downcase + '_value').to_sym
 end
 
