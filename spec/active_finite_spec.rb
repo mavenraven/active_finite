@@ -98,7 +98,7 @@ describe 'add_finites' do
   it 'by default, creates a column with the same name as the table' do
     finites = ['red']
     add_finites in_table: :colors, values: finites
-    Color.where(:color => :red).limit(1).first.color.should eql "red"
+    Color.where(:color_value => :red).limit(1).first.color_value.should eql "red"
   end
 
   it 'adds finites as rows to the database' do
@@ -106,7 +106,7 @@ describe 'add_finites' do
     add_finites in_table: :colors, values: finites
 
     finites.each do |f|
-      Color.where(:color => f).limit(1).first.color.should eql f.to_s
+      Color.where(:color_value => f).limit(1).first.color_value.should eql f.to_s
     end
   end
 
@@ -132,7 +132,7 @@ describe 'add_finites' do
       from_file: file_path
 
     ['scaramanga', 'no', 'janus'].each do |v|
-      Villan.where(:villan => v).limit(1).first.villan.should eql v
+      Villan.where(:villan_value => v).limit(1).first.villan_value.should eql v
     end
   end
 
@@ -142,7 +142,8 @@ describe 'add_finites' do
       add_finites in_table: :wu_members, values: ['gza', nil]
     rescue
       ['gza'].each do |w|
-        get_table(:wu_members).where(:wu_member => w).limit(1).first.should nil
+        get_table(:wu_members)
+        .where(:wu_member_value => w).limit(1).first.should nil
       end
     end
   end
@@ -160,9 +161,9 @@ describe 'delete_finites' do
 
   it 'can delete previously added finites' do
     add_finites in_table: :adjs, values: ['drop', 'delete']
-    Adj.where(:adj => 'drop').limit(1).first.adj.should eql 'drop'
+    Adj.where(:adj_value => 'drop').limit(1).first.adj_value.should eql 'drop'
     delete_finites in_table: :adjs, values: ['drop']
-    Adj.where(:adj => 'drop').limit(1).size.should eql 0
+    Adj.where(:adj_value => 'drop').limit(1).size.should eql 0
   end
 
   it 'can use a different column name' do
