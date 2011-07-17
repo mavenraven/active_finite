@@ -9,28 +9,43 @@ def reconnect
     :timeout  => 5000)
 end
 
-describe 'get_table' do
+describe 'get_finite' do
   before :each do
     reconnect
   end
   it 'returns a class that is a child of active record base' do
-    get_table(:test).superclass.should eql ActiveRecord::Base
+    get_finite(:test).superclass.should eql ActiveRecord::Base
   end
   it 'brings a class into scope' do
-    get_table :spaces
+    get_finite :spaces
     Object.const_defined?(:Space).should be true
   end
   it 'will not redefine a previously defined constant' do
     Define = true
-    get_table :defines
+    get_finite :defines
     Define.should == true
   end
   it 'will redefine a previously defined constant with the force option' do
     Anyway = true
-    get_table :anyways, :force
+    get_finite :anyways, :force
     Anyway.should_not == true
   end
+
+  it 'has a shortcut method to set with an existing value' do
+    add_finites in_table: :colors, values: ['red', 'blue']
+    color = get_finite(:colors).first
+    color.id.should eql 1
+    color.set_with_existing_value 'blue'
+    color.id.should eql 2
+  end
+
+  it 'has a method to get a value polymorphic to all finites' do
+    add_finites in_table: :colors, values: ['red', 'blue']
+    color = get_finite(:colors).first
+    color.get_value.should eql 'red'
+  end
 end
+
 
 describe 'all_finite_tables' do
   before :each do
@@ -53,8 +68,8 @@ describe 'all_finite_tables' do
       end
     end
     add_finites in_table: :things,
-                column_name: :column,
-                values: ['1']
+      column_name: :column,
+      values: ['1']
 
     all_finite_tables.should == [Thing]
   end
@@ -71,10 +86,10 @@ describe 'all_finite_tables' do
     u = Thing.new
     u.column = "bye"
     u.save
-    
+
     delete_finites in_table: :things,
-                   column_name: :column,
-                   values: ["bye"]
+      column_name: :column,
+      values: ["bye"]
 
     all_finite_tables.should eql [Thing]
   end
@@ -142,7 +157,7 @@ describe 'add_finites' do
       add_finites in_table: :wu_members, values: ['gza', nil]
     rescue
       ['gza'].each do |w|
-        get_table(:wu_members)
+        get_finite(:wu_members)
         .where(:wu_member_value => w).limit(1).first.should nil
       end
     end

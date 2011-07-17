@@ -1,4 +1,4 @@
-require_relative 'get_table.rb'
+require_relative 'get_finite.rb'
 require_relative 'external_includes.rb'
 
 module MasterTable
@@ -9,14 +9,14 @@ module MasterTable
     default_column_name self.table_name
   end
   def self.table
-    get_table self.table_name
+    get_finite self.table_name, :do_not_redefine_accessor
   end
   def self.all
     if self.table.table_exists?
       self.table
       .all
       .collect {|x| x.send self.column_name.to_s}
-      .collect {|x| get_table x}
+      .collect {|x| get_finite x}
     else
       []
     end

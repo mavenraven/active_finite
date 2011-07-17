@@ -1,8 +1,8 @@
 require_relative 'external_includes.rb'
 require_relative 'master_table.rb'
-require_relative 'get_table.rb'
+require_relative 'get_finite.rb'
 
-def all_finite_tables
+def all_finites
   MasterTable.all
 end
 
@@ -75,7 +75,7 @@ def modify_finite args
     to_be_modified = to_be_modified.concat JSON.load open file_name
   end
 
-  klass = get_table table_name
+  klass = get_finite table_name, :do_not_redefine_accessor
   ActiveRecord::Base.transaction do
     yield to_be_modified, klass, column_name
   end
