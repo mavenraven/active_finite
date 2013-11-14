@@ -1,7 +1,14 @@
 = active_finite
 
-[Note: This library has not been used with Rails 4. However, it should still work correctly. Any bugs or feature requests should be
-communicated through the issues section of the github site listed for this gem on RubyGems.org]
+== Compatibility notes
+
+This gem does not work with newer versions of ruby, or of rails. It currently works with versions of ruby before
+1.9.3, and with with other versions specified in the Gemfile. To run tests, use:
+
+  rbenv exec bundle _1.0.22_ exec rake gemspec
+
+There are no plans on porting this to new versions unless there is interest. You can ask for porting by adding
+an issue to active_finite's github page.
 
 == What is active_finite?
 
