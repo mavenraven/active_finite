@@ -1,4 +1,3 @@
-require 'ruby-debug'
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 def reconnect
@@ -54,12 +53,12 @@ describe 'all_finite_tables' do
   it 'returns all active record classes created by active_finite' do
     add_finites in_table: :things, values: ['1']
     add_finites in_table: :stuffs, values: ['s']
-    all_finite_tables.should == [Thing, Stuff]
+    all_finites.should == [Thing, Stuff]
   end
   it 'will no longer return a removed finite table' do
     add_finites in_table: :things, values: ['1']
     delete_finites in_table: :things, values: ['1']
-    all_finite_tables.should == []
+    all_finites.should == []
   end
   it 'returns a table that was used with add_finites' do
     ActiveRecord::Schema.define do
@@ -71,7 +70,7 @@ describe 'all_finite_tables' do
       column_name: :column,
       values: ['1']
 
-    all_finite_tables.should == [Thing]
+    all_finites.should == [Thing]
   end
   it 'returns a table that was used with delete_finites' do
     ActiveRecord::Schema.define do
@@ -91,7 +90,7 @@ describe 'all_finite_tables' do
       column_name: :column,
       values: ["bye"]
 
-    all_finite_tables.should eql [Thing]
+    all_finites.should eql [Thing]
   end
 end
 

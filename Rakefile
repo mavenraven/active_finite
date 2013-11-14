@@ -13,11 +13,11 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "active_finite"
-  gem.homepage = "http://github.com/r4pdevteam/active_finite"
+  gem.homepage = "http://github.com/my-stuff/active_finite"
   gem.license = "MIT"
   gem.summary = %Q{one-line summary of your gem}
   gem.description = %Q{longer description of your gem}
-  gem.email = "me@stuffihavemade.com"
+  gem.email = "user@localhost"
   gem.authors = ["me"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
@@ -39,12 +39,12 @@ end
 
 task :default => :spec
 
-require 'rake/rdoctask'
-Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
-
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "active_finite #{version}"
-  rdoc.rdoc_files.include('README*')
-  rdoc.rdoc_files.include('lib/**/*.rb')
-end
+#require 'rdoc/task'
+#RDoc::Task.new do |rdoc|
+#  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+#
+#  rdoc.rdoc_dir = 'rdoc'
+#  rdoc.title = "active_finite #{version}"
+#  rdoc.rdoc_files.include('README*')
+#  rdoc.rdoc_files.include('lib/**/*.rb')
+#end

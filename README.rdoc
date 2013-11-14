@@ -1,5 +1,8 @@
 = active_finite
 
+[Note: This library has not been used with Rails 4. However, it should still work correctly. Any bugs or feature requests should be
+communicated through the issues section of the github site listed for this gem on RubyGems.org]
+
 == What is active_finite?
 
 The goal of active_finite is to provide a simple way to define
@@ -61,25 +64,3 @@ the migration. For example:
 If both values and from_file are defined, active_finite will pull entries from both.
 Another option to be aware of is that values do not have to be explicitly listed
 upon deletion, using the all option is sufficent.
-
-
-== Other ideas
-Combine active_finite with foreigner[https://github.com/matthuhiggins/foreigner] to put foreign key constraints on users of defined enums.
-
-== Contributing to active_finite
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
-* Fork the project
-* Start a feature/bugfix branch
-* Commit and push until you are happy with your contribution
-* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
-* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
-
-== Contact
-me@stuffivemade.com
-
-== Copyright
-
-Copyright (c) 2011 me. See LICENSE.txt for
-further details.
-
