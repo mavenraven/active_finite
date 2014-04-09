@@ -13,12 +13,12 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "active_finite"
-  gem.homepage = "http://github.com/my-stuff/active_finite"
+  gem.homepage = "http://github.com/mavenraven/active_finite"
   gem.license = "MIT"
   gem.summary = %Q{one-line summary of your gem}
   gem.description = %Q{longer description of your gem}
-  gem.email = "user@localhost"
-  gem.authors = ["me"]
+  gem.email = "developers@mavenraven.org"
+  gem.authors = ["mavenraven.org"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
   #  gem.add_runtime_dependency 'jabber4r', '> 0.1'
